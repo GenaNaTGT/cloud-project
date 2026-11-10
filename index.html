@@ -31,6 +31,14 @@
     <input id="task" placeholder="Новая задача">
     <button onclick="addTask()">Добавить</button>
     <ul id="list"></ul>
+
+    <hr>
+    <button onclick="loadStats()">Статистика</button>
+    <p id="stats"></p>
+
+    <input id="echoText" placeholder="Что отправить на сервер">
+    <button onclick="sendEcho()">Отправить</button>
+    <p id="echoResult"></p>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -105,6 +113,27 @@
     async function deleteTask(id) {
       await db.from("tasks").delete().eq("id", id);
       loadTasks();
+    }
+
+    // Адрес бэкенда на Amvera с пятой пары, без слеша в конце
+    const BACKEND_URL = "https://backend-anatolynazarov777.msk1.amvera.tech/";
+
+    async function loadStats() {
+      document.getElementById("stats").textContent = "Считаем...";
+      const response = await fetch(BACKEND_URL + "/stats");
+      const data = await response.json();
+      document.getElementById("stats").textContent = "Всего задач в базе: " + data.total_tasks;
+    }
+
+    async function sendEcho() {
+      const text = document.getElementById("echoText").value;
+      const response = await fetch(BACKEND_URL + "/echo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: text }),
+      });
+      const data = await response.json();
+      document.getElementById("echoResult").textContent = JSON.stringify(data);
     }
 
     showApp(); // если уже входили раньше — сразу показываем задачи
